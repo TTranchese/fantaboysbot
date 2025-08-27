@@ -1,0 +1,15 @@
+[Unit]
+Description=Bot Calcio Telegram
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/botcalcio
+Environment=TELEGRAM_TOKEN=
+Environment=ADMIN_USERNAME=
+ExecStart=/usr/bin/python3 -m botcalcio.main
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
