@@ -18,14 +18,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-def escape_markdown(text: str) -> str:
-    """Protegge i caratteri speciali di Markdown V2"""
-    escape_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
-    for ch in escape_chars:
-        text = text.replace(ch, f'\\{ch}')
-    return text
-
 # Bot configuration  
 TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "")
@@ -68,7 +60,7 @@ Comandi disponibili:
 - Orario consentito: dalle 09:00 alle 19:00
 - Le formazioni rimangono segrete fino alla revisione dell'admin
     """
-    bot.reply_to(message, welcome_text, parse_mode='Markdown')
+    bot.reply_to(message, welcome_text)
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
@@ -97,7 +89,7 @@ def send_help(message):
         datetime.now().strftime("%H:%M"),
         "Sì" if is_within_time(9, 19) else "No"
     )
-    bot.reply_to(message, help_text, parse_mode='Markdown')
+    bot.reply_to(message, help_text)
 
 @bot.message_handler(commands=['formazione'])
 def ricevi_formazione(message):
@@ -191,9 +183,9 @@ def mostra_formazioni(message):
             parts.append(current_part)
         
         for part in parts:
-            bot.send_message(message.chat.id, escape_markdown(part), parse_mode="MarkdownV2")
+            bot.send_message(message.chat.id, part)
     else:
-        bot.send_message(message.chat.id, escape_markdown(response), parse_mode="MarkdownV2")
+        bot.send_message(message.chat.id, response)
     
     logger.info(f"Admin {ADMIN_USERNAME} viewed all formations")
 
@@ -239,7 +231,7 @@ def show_stats(message):
 {chr(10).join([f"• {user}" for user in formazioni.keys()]) if formazioni else "Nessuno"}
     """
     
-    bot.reply_to(message, stats_text, parse_mode='Markdown')
+    bot.reply_to(message, stats_text)
 
 @bot.message_handler(func=lambda message: True)
 def handle_unknown_messages(message):
