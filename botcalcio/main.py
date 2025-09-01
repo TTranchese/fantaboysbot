@@ -18,6 +18,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+def escape_markdown(text: str) -> str:
+    """Protegge i caratteri speciali di Markdown V2"""
+    escape_chars = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!']
+    for ch in escape_chars:
+        text = text.replace(ch, f'\\{ch}')
+    return text
+
 # Bot configuration  
 TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "")
@@ -183,9 +191,9 @@ def mostra_formazioni(message):
             parts.append(current_part)
         
         for part in parts:
-            bot.send_message(message.chat.id, part, parse_mode='Markdown')
+            bot.send_message(message.chat.id, escape_markdown(part), parse_mode="MarkdownV2")
     else:
-        bot.send_message(message.chat.id, response, parse_mode='Markdown')
+        bot.send_message(message.chat.id, escape_markdown(response), parse_mode="MarkdownV2")
     
     logger.info(f"Admin {ADMIN_USERNAME} viewed all formations")
 
