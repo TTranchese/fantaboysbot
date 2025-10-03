@@ -132,6 +132,31 @@ def ricevi_formazione(message):
     bot.reply_to(message, "✅ Formazione ricevuta in segreto!\n🔒 La tua formazione è stata registrata e rimarrà confidenziale.")
     logger.info(f"Formation received from {user_identifier}")
 
+@bot.message_handler(commands=['punteggi'])
+def mostra_punteggi(message):
+    welcome_text = """
+🏆 **Punteggi**
+Samu: 5
+Doc: 5
+Andrea: 5
+Pesca Medio: 5
+Nazza: 4
+Pasquale: 4
+JJ Pesca: 4
+Fabio: 3
+Mozza: 3
+Aragosta: 3
+Simo Gemello: 3
+Piccio: 2
+Mangio: 2
+Zio: 2
+Ema: 1
+Prio: 1
+Ste: 1
+Pesca: 1
+    """
+    bot.reply_to(message, welcome_text)
+
 @bot.message_handler(commands=['mostraformazioni'])
 def mostra_formazioni(message):
     """
