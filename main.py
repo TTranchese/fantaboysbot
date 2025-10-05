@@ -4,6 +4,7 @@ Telegram Bot for Team Formation Management
 Handles time-restricted submissions and admin oversight
 """
 
+import sys
 import telebot
 import os
 from datetime import datetime, time
@@ -20,6 +21,11 @@ logger = logging.getLogger(__name__)
 # Bot configuration  
 TOKEN = os.getenv("TELEGRAM_TOKEN", "")
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "")
+
+# Allow passing ADMIN_USERNAME and TOKEN as CLI args before creating the TeleBot
+if len(sys.argv) == 3:
+    ADMIN_USERNAME = sys.argv[1]
+    TOKEN = sys.argv[2]
 
 # Initialize bot
 bot = telebot.TeleBot(TOKEN)
@@ -229,6 +235,19 @@ def clear_formazioni(message):
     bot.reply_to(message, f"🗑️ Cancellate {formation_count} formazioni.")
     logger.info(f"Admin {ADMIN_USERNAME} cleared all formations")
 
+@bot.message_handler(commands=['admin'])
+def show_admin(message):
+    """Return the configured admin username — only callable by configured admin"""
+    requester = message.from_user.username or ""
+    if requester != ADMIN_USERNAME:
+        bot.reply_to(message, "❌ Non hai i permessi per usare questo comando.")
+        logger.warning(f"Unauthorized /admin attempt by {requester}")
+        return
+
+    admin = ADMIN_USERNAME if ADMIN_USERNAME else "non impostato"
+    bot.reply_to(message, f"Admin attuale: {admin}")
+    logger.info(f"Admin queried by {requester}: {admin}")
+
 @bot.message_handler(commands=['stats'])
 def show_stats(message):
     """
@@ -287,10 +306,14 @@ def keep_alive():
     logger.info("Keep-alive mechanism started (5-minute intervals)")
 
 def main():
-    if not TOKEN:
-        logger.error('TELEGRAM_TOKEN non impostato. Imposta la variabile d\'ambiente TELEGRAM_TOKEN e riavvia.')
+    global TOKEN, ADMIN_USERNAME, bot
+    if len(sys.argv) == 3:
+        ADMIN_USERNAME = sys.argv[1]
+        TOKEN = sys.argv[2]
+    elif not TOKEN or not ADMIN_USERNAME:
+        logger.error("Usage: python main.py <ADMIN_USERNAME> <TELEGRAM_TOKEN> or set environment variables TELEGRAM_TOKEN ADMIN_USERNAME.")
         raise SystemExit(1)
-
+    
     """Main function to start the bot"""
     logger.info(f"Starting Telegram Bot for Team Formations...")
     logger.info(f"Admin: {ADMIN_USERNAME}")
